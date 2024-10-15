@@ -21,16 +21,20 @@ router.post('/login', async (req, res): Promise<void> => {
   console.log('in login');
   const { username, password } = req.body;
   const user = await User.findOne({ username });
-  if (user && (await user.matchPassword(password))) {
-    const token = jwt.sign(
-      { id: user._id, name: user.username },
-      process.env.JWT_SECRET as string,
-      { expiresIn: '1h' }
-    );
-    console.log(token);
-    res.json({ token});
-  }
-  res.status(401).send({ message: 'Invalid credentials' });
+  try{
+
+      if (user && (await user.matchPassword(password))) {
+          const token = jwt.sign(
+              { id: user._id, name: user.username },
+              process.env.JWT_SECRET as string,
+              { expiresIn: '1h' }
+            );
+            console.log(token);
+            res.status(401).json({ token});
+        }
+    }catch(e){
+        res.status(401).json({ message: 'Invalid credentials' });
+    }
 });
 
 router.get(
